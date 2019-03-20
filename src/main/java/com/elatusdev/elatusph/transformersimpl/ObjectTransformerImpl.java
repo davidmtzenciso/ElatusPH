@@ -1,44 +1,47 @@
-package com.elatusdev.elatusph.transformers;
+package com.elatusdev.elatusph.transformersimpl;
 
 import com.elatusdev.elatusph.annotaciones.FieldMetadata;
 import com.elatusdev.elatusph.annotaciones.FieldMetadata.FieldType;
-import com.elatusdev.elatusph.annotaciones.Identifier;
 import com.elatusdev.elatusph.annotaciones.MainField;
+import com.elatusdev.elatusph.model.ListPresentation;
+import com.elatusdev.elatusph.model.TablePresentation;
+import com.elatusdev.elatusph.transformers.ObjectTransformer;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.elatusdev.elatusph.annotaciones.Label;
 
 /**
  *
  * @author david martinez enciso
  */
-public class TableTransformer {
+public class ObjectTransformerImpl implements ObjectTransformer{
         
-    public TableTransformer(){     
+    public ObjectTransformerImpl(){     
         emptySymbol = " ";
+        validator = new Validator();
     }
     
-    public List<Object> getIdentifiers(Object target){
+    private List<String> getLabels(Object target){
         FieldMetadata metadata;
-        List<Object> list;
+        List<String> list;
         Class<?> cls;
         
         try{
             cls = target.getClass();
             list = new LinkedList<>();
             for(Field field : cls.getDeclaredFields()){
-                if(isValidField(field)){
+                if(validator.isValidField(field)){
                     metadata = field.getDeclaredAnnotation(FieldMetadata.class);
                     if(metadata.expand()){
-                        list.addAll(getIdentifiers(cls.getMethod(
+                        list.addAll(getLabels(cls.getMethod(
                                 getMethodName(field.getName())).invoke(target)));
                     }
                     else
-                        list.add(field.getDeclaredAnnotation(Identifier.class).value());
+                        list.add(field.getDeclaredAnnotation(Label.class).value());
                 }
             }
             return list;
@@ -49,15 +52,14 @@ public class TableTransformer {
         return null;
     }
     
-    @SuppressWarnings("unchecked")
-    public LinkedList<List<Object>> toRows(final List<Object> objects)
+    private LinkedList<List<Object>> toRows(final List<Object> objects)
                                                     throws NullPointerException{ 
         LinkedList<List<Object>> rows;
         Class<?> cls;
 
         try{
             cls = objects.get(0).getClass();
-            if(isValidClass(cls)){
+            if(validator.isValidClass(cls)){
                 rows = new LinkedList<>();
                 for(Object object : objects){
                    rows.add(processFieldsOf(object));
@@ -73,7 +75,7 @@ public class TableTransformer {
         return null;
     }
     
-    public List<Object> toRow(final Object object){
+    private List<Object> toRow(final Object object){
         try{
             return processFieldsOf(object);
         }catch (NoSuchMethodException | IllegalAccessException 
@@ -95,7 +97,7 @@ public class TableTransformer {
         cls = target.getClass();
         for(Field field : cls.getDeclaredFields()){
             LOG.info(field.getName());
-            if(isValidField(field)){
+            if(validator.isValidField(field)){
                 metadata = field.getDeclaredAnnotation(FieldMetadata.class);
                 if(metadata.type() == FieldType.COLLECTION) 
                     row.addAll(transformeCollection(target,field));
@@ -112,80 +114,7 @@ public class TableTransformer {
         return row;
     }
     
-    private boolean isValidClass(final Class<?> cls) throws NullPointerException{        
-        if(!hasComparableInterface(cls.getInterfaces())){
-            throw new NullPointerException(new StringBuilder()
-                        .append("Comparable interface not found for: ")
-                        .append(cls.getSimpleName()).toString());
-        }
-        else if(cls.getDeclaredAnnotation(MainField.class) == null){
-            throw new NullPointerException(new StringBuilder()
-                        .append("MainField annotation missing in : ")
-                        .append(cls.getSimpleName()).toString());
-        }
-        else
-            return true;
-    }
     
-    private boolean isValidField(final Field field) throws NullPointerException{
-        FieldMetadata metadata;
-        
-        if(!Modifier.isStatic(field.getModifiers())){
-            metadata = field.getDeclaredAnnotation(FieldMetadata.class);
-            if(metadata == null){
-                throw new NullPointerException(new StringBuilder()
-                            .append("FieldMetadata annotation missing in field: ")
-                            .append(field.getName()).append(", of class: ")
-                            .append(field.getDeclaringClass().getSimpleName())
-                            .toString());
-            }
-            else if(metadata.show())
-                return isValidFieldMetadata(metadata, field);
-        }
-        
-        return false;
-    }
-    
-    private boolean isValidFieldMetadata(final FieldMetadata metadata,final Field field)
-                                        throws NullPointerException {
-        if(metadata.type() == FieldType.USER_OBJECT || 
-                metadata.type() == FieldType.COLLECTION) {
-            
-            if(metadata.fieldClass() == void.class) {
-                throw new NullPointerException(new StringBuilder()
-                        .append("fieldClass is void for: ")
-                        .append(field.getName()).append("in class: ")
-                        .append(field.getDeclaringClass().getSimpleName())
-                        .toString());
-            }
-            else if(metadata.type() == FieldType.USER_OBJECT)
-                return true;
-            
-            else if(metadata.type() == FieldType.COLLECTION){
-                if(metadata.managedClass() == void.class){
-                    throw new NullPointerException(new StringBuilder()
-                    .append("fieldClass is void for: ")
-                    .append(field.getName()).append("in class: ")
-                        .append(field.getDeclaringClass().getSimpleName())
-                        .toString());
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    private boolean hasComparableInterface(final Class<?>[] interfaces){  
-        boolean hasIt = false;
-        
-        for(Class<?> clazz : interfaces){
-            if(clazz.equals(Comparable.class))
-                hasIt = true;
-            else if(clazz.getInterfaces() != null)
-                hasIt = hasComparableInterface(clazz.getInterfaces());
-        }
-        return hasIt;
-    }
     
     private void addToRow(final List<Object> row, final Object value,
                        final  List<Object>elements, final int position, 
@@ -219,13 +148,13 @@ public class TableTransformer {
         row = new LinkedList<>();
         if(!collection.isEmpty()){
             cls = collection.get(0).getClass();
-            if(isValidClass(cls)){
+            if(validator.isValidClass(cls)){
                 multiValue= new LinkedList<>();
                 for(int i=0; i < collection.size(); i++){
                     cls = collection.get(i).getClass();
                     mainfield = cls.getDeclaredAnnotation(MainField.class);
                     objField = cls.getDeclaredField(mainfield.value());
-                    if(isValidField(objField)){
+                    if(validator.isValidField(objField)){
                         value = getValue(collection.get(i),objField);
                         addToRow(row, value, collection, i, multiValue);
                     }
@@ -258,7 +187,7 @@ public class TableTransformer {
 
     /*
      * The list will be sorted before concatenate
-     * and it will be cleared after.
+     * and it will be cleared afterwards.
      */
     private Object concatenateValues(final List<Object> multiValue) {
         String delimiter;
@@ -307,7 +236,7 @@ public class TableTransformer {
                     return value != null ? value : emptySymbol;
                 case USER_OBJECT:
                     fieldClass = metadata.fieldClass();
-                    if(isValidClass(fieldClass)){
+                    if(validator.isValidClass(fieldClass)){
                         mainField = fieldClass.getDeclaredAnnotation(MainField.class);
                         return getValue(cls.getDeclaredMethod(methodName).invoke(target),
                                 fieldClass.getDeclaredField(mainField.value()));
@@ -323,11 +252,23 @@ public class TableTransformer {
         return emptySymbol;
     }
     
+    @Override
+    public TablePresentation toTablePresentation(List<Object> objects){
+        return new TablePresentation(
+                getLabels(objects.get(0)),toRows(objects));
+    }
+    
+    @Override
+    public ListPresentation toListPresentation(Object obj){
+        return new ListPresentation(getLabels(obj), toRow(obj));
+    }
+    
+    @Override
     public void setSymbolForEmpty(String symbol){
         this.emptySymbol = symbol;
     }
 
     private String emptySymbol;
-    private static final Logger LOG = Logger.getLogger(
-                                        TableTransformer.class.getName());
+    private final Validator validator;
+    private static final Logger LOG = Logger.getLogger(ObjectTransformerImpl.class.getName());
 }
