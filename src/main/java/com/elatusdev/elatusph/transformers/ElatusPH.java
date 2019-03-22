@@ -5,6 +5,7 @@
  */
 package com.elatusdev.elatusph.transformers;
 
+import com.elatusdev.elatusph.model.BadConstructionException;
 import com.elatusdev.elatusph.model.ListPresentation;
 import com.elatusdev.elatusph.model.TablePresentation;
 import java.util.List;
@@ -18,15 +19,19 @@ import java.util.function.Function;
  */
 public interface ElatusPH {
     
-    public ElatusPH fromPresentation(Map<String,String> data, Class<?> cls);
+    public ElatusPH fromPresentationToObject(List<String> labels, List<Object> data, Class<?> cls);
+    
+    public ElatusPH fromPresentationToCollection(List<String> labels, List<List<Object>> data, Class<?> cls);
     
     public ElatusPH setInstanceCreator(Function<Class<?>, Object> function);
     
-    public ElatusPH onCreationSuccess(Consumer<List<Object>> consumer);
+    public ElatusPH onObjCreation(Consumer<Object> consumer);
     
-    public ElatusPH onCreationError(Consumer<List<String>> consumer);
+    public ElatusPH onCollectionCreation(Consumer<List<Object>> consumer);
     
-    public void transformeToObjects();
+    public ElatusPH onError(Consumer<List<String>> consumer);
+    
+    public void transforme() throws BadConstructionException;
     
     public ListPresentation fromObjectToList(Object obj);
     

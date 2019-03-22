@@ -11,11 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import com.elatusdev.elatusph.annotaciones.Label;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -24,19 +23,25 @@ import com.elatusdev.elatusph.annotaciones.Label;
 public class PresentationTransformerImpl implements PresentationTransfomer {
     
     
-    private void insertData(String identifierName, String value, Object target) 
+    private void insertData(String label, Object value, Object target) 
                                                     throws NoSuchFieldException,
                                                            NoSuchMethodException, 
                                                            IllegalAccessException,
-                                                           InvocationTargetException{
+                                                           InvocationTargetException,
+                                                           NoSuchElementException{
         Field field;
         Method method;
         Class<?> cls;
          
         cls = target.getClass();
-        field = findField(identifierName, cls);
+        field = findField(label, cls);
         method = findMethod(formatName("set",field.getName()), field.getType(), cls);
-        method.invoke(target, parseValue(field.getType(), value));
+        if(field.getType().equals(value.getClass()))
+           method.invoke(target, value);
+        else
+            throw new NoSuchElementException(new StringBuilder().append("type: ")
+                      .append(field.getType().getSimpleName())
+                      .append(" not matched param in set method").toString());
     }
     
     private String formatName(String prefix, String fieldName){
@@ -44,25 +49,25 @@ public class PresentationTransformerImpl implements PresentationTransfomer {
                    .append(fieldName.substring(1, fieldName.length())).toString();
     }
     
-    private Field findField(String identiferName, Class<?> cls) 
+    private Field findField(String label, Class<?> cls) 
                                                     throws NoSuchFieldException{
         Class<?> superCls;
-        Label identifier;
+        Label labelAnnotation;
         
         for(Field field : cls.getDeclaredFields()){
-            identifier = field.getAnnotation(Label.class);
-            if(identifier != null){
-                if(identifier.value().equals(identiferName)){
+            labelAnnotation = field.getAnnotation(Label.class);
+            if(labelAnnotation != null){
+                if(labelAnnotation.value().equals(label)){
                     return field;
                 }
             }
         }
         superCls = cls.getSuperclass();
         if(!superCls.equals(Object.class))
-            return findField(identiferName, superCls);
+            return findField(label, superCls);
         else
             throw new NoSuchFieldException(new StringBuilder().append("identifier: ")
-                     .append(identiferName).append(" not found in the class nor in any parent class")
+                     .append(label).append(" not found in the class nor in any parent class")
                      .toString());
     }
 
@@ -83,48 +88,53 @@ public class PresentationTransformerImpl implements PresentationTransfomer {
                          .toString());
         }
     }
-    
-     private Object parseValue(Class<?> type, String value) 
-                                            throws NumberFormatException{
-        try{
-        if(type.equals(Integer.class))
-            return Integer.parseInt(value);
-        else if(type.equals(Double.class))
-            return Double.parseDouble(value);
-        else if(type.equals(Long.class))
-            return Long.parseLong(value);
-        else if(type.equals(Boolean.class))
-            return Integer.parseInt(value) == 1;
-        else
-            return value;
-        }catch(NumberFormatException e){
-            throw new NumberFormatException(new StringBuilder().append("type: ")
-                      .append(type.getSimpleName()).append(" not supported").toString());
-        }
-    }
+  
      
     @Override
-    public void toObjects(Map<String,String> data, final Class<?> cls) {
+    public void toObject(List<String> labels, List<Object> data, final Class<?> cls) {
+        List<String> errors;
+        Object obj;
+        
+        obj = instanceCreator.apply(cls);
+        errors = insertData(obj, labels, data);
+        if(errors.isEmpty())
+            onSuccessConsumer.accept(obj);
+        else
+            onErrorConsumer.accept(errors);
+    }
+    
+    private List<String> insertData(Object obj, List<String> labels, List<Object> data){
+        List<String> errors;
+        
+        errors = new ArrayList<>();
+        try{
+            for(int i=0; i < labels.size(); i++){
+                insertData(labels.get(i), data.get(i), obj);
+            }
+        }catch(NoSuchFieldException | NoSuchMethodException | 
+                IllegalAccessException | InvocationTargetException e){
+            errors.add(e.getMessage());
+        }
+        return errors;
+    }
+
+    @Override
+    public void toObjects(List<String> labels, List<List<Object>> data, final Class<?> cls){
         List<Object> objects;
         List<String> errors;
         Object obj;
         
         objects = new ArrayList<>();
         errors = new ArrayList<>();
-        for(Entry<String,String> entry : data.entrySet()){
+        for(List<Object> objData : data){        
             obj = instanceCreator.apply(cls);
-            try{
-                insertData(entry.getKey(), entry.getValue(), obj);
-                objects.add(obj);
-            }catch(NoSuchFieldException | NoSuchMethodException | 
-                    IllegalAccessException | InvocationTargetException e){
-                errors.add(e.getMessage());
-            }
+            errors.addAll(insertData(obj, labels, objData));   
         }
         if(errors.isEmpty())
-            onSuccessConsumer.accept(objects);
+            onSuccessListConsumer.accept(objects);
         else
             onErrorConsumer.accept(errors);
+        
     }
     
     @Override
@@ -133,8 +143,13 @@ public class PresentationTransformerImpl implements PresentationTransfomer {
     }
 
     @Override
-    public void setOnSuccessConsumer(Consumer<List<Object>> onSuccessConsumer) {
+    public void setOnSuccessConsumer(Consumer<Object> onSuccessConsumer) {
         this.onSuccessConsumer = onSuccessConsumer;
+    }
+    
+    @Override
+    public void setOnSuccessListConsumer(Consumer<List<Object>> onSuccessConsumer) {
+        this.onSuccessListConsumer = onSuccessConsumer;
     }
 
     @Override
@@ -143,6 +158,7 @@ public class PresentationTransformerImpl implements PresentationTransfomer {
     }
 
     private Function<Class<?>, Object> instanceCreator;
-    private Consumer<List<Object>> onSuccessConsumer;
+    private Consumer<Object> onSuccessConsumer;
+    private Consumer<List<Object>> onSuccessListConsumer;
     private Consumer<List<String>> onErrorConsumer;
 }

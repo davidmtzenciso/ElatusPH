@@ -17,11 +17,15 @@ import java.util.function.Function;
  */
 public interface PresentationTransfomer {
     
-    public void toObjects(Map<String,String> data, final Class<?> cls);
+    public void toObject(List<String> labels, List<Object> data, final Class<?> cls);
+    
+    public void toObjects(List<String> labels, List<List<Object>> data, final Class<?> cls);
     
     public void setInstanceCreator(Function<Class<?>, Object> createObj);
 
-    public void setOnSuccessConsumer(Consumer<List<Object>> consumeOnSuccess);
+    public void setOnSuccessConsumer(Consumer<Object> consumeOnSuccess);
+    
+    public void setOnSuccessListConsumer(Consumer<List<Object>> consumeOnSuccess);
 
     public void setOnErrorConsumer(Consumer<List<String>> consumerOnError);
 }
