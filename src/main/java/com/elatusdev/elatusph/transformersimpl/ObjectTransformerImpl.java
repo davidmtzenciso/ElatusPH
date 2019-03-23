@@ -96,7 +96,6 @@ public class ObjectTransformerImpl implements ObjectTransformer{
         row = new LinkedList<>();
         cls = target.getClass();
         for(Field field : cls.getDeclaredFields()){
-            LOG.info(field.getName());
             if(validator.isValidField(field)){
                 metadata = field.getDeclaredAnnotation(FieldMetadata.class);
                 if(metadata.type() == FieldType.COLLECTION) 
@@ -169,7 +168,7 @@ public class ObjectTransformerImpl implements ObjectTransformer{
     }
     
     @SuppressWarnings("unchecked")
-    public <E extends Comparable<E>> boolean isDuplicate(final List<Object> elements,final int i) {
+    private <E extends Comparable<E>> boolean isDuplicate(final List<Object> elements,final int i) {
         E element;
         E previous;
         E next;
@@ -268,6 +267,10 @@ public class ObjectTransformerImpl implements ObjectTransformer{
         this.emptySymbol = symbol;
     }
 
+    public void setEmptySymbol(String emptySymbol) {
+        this.emptySymbol = emptySymbol;
+    }
+    
     private String emptySymbol;
     private final Validator validator;
     private static final Logger LOG = Logger.getLogger(ObjectTransformerImpl.class.getName());

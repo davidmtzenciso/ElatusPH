@@ -103,7 +103,15 @@ public class ElatusPHImpl implements ElatusPH {
     public TablePresentation fromObjectsToTable(List<Object> objects){
         return objectTransformer.toTablePresentation(objects);
     }
-        
+
+    public void setPresentationTransformer(PresentationTransfomer presentationTransformer) {
+        this.presentationTransformer = presentationTransformer;
+    }
+
+    public void setObjectTransformer(ObjectTransformer objectTransformer) {
+        this.objectTransformer = objectTransformer;
+    }
+   
     private Class<?> cls;
     private List<Object> data;
     private List<List<Object>> dataCollection;
@@ -112,6 +120,6 @@ public class ElatusPHImpl implements ElatusPH {
     private Consumer<List<Object>> collectionConsumer;
     private Consumer<List<String>> errorConsumer;
     private Function<Class<?>, Object> instanceCreator;
-    private final PresentationTransfomer presentationTransformer;
-    private final ObjectTransformer objectTransformer;
+    private PresentationTransfomer presentationTransformer;
+    private ObjectTransformer objectTransformer;
 }

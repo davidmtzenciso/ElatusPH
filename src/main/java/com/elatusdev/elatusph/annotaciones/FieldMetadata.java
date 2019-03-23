@@ -28,7 +28,7 @@ public @interface FieldMetadata {
     
     boolean expand() default false;
     
-    String mainField();
+    String mainField() default "";
         
     Class<?> managedClass() default void.class;
     

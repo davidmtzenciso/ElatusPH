@@ -50,7 +50,7 @@ public class Validator {
         return false;
     }
     
-    public boolean isValidFieldMetadata(final FieldMetadata metadata,final Field field)
+    private boolean isValidFieldMetadata(final FieldMetadata metadata,final Field field)
                                         throws NullPointerException {
         if(metadata.type() == FieldMetadata.FieldType.USER_OBJECT || 
                 metadata.type() == FieldMetadata.FieldType.COLLECTION) {
@@ -79,7 +79,7 @@ public class Validator {
         return true;
     }
     
-    public boolean hasComparableInterface(final Class<?>[] interfaces){  
+    private boolean hasComparableInterface(final Class<?>[] interfaces){  
         boolean hasIt = false;
         
         for(Class<?> clazz : interfaces){
