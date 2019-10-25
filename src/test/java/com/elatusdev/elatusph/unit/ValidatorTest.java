@@ -9,23 +9,18 @@ import com.elatusdev.elatusph.model.TestClassD;
 import com.elatusdev.elatusph.transformersimpl.Validator;
 import java.lang.reflect.Field;
 import java.util.logging.Logger;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author root
  */
-@RunWith(JUnitParamsRunner.class)
 public class ValidatorTest {
     
     private static Validator validator;    
     
-    @BeforeClass
     public static void init(){
         validator = new Validator();
     }
@@ -45,46 +40,40 @@ public class ValidatorTest {
     @Test
     public void testValidClass() {
         try{
-           Assert.assertTrue(validator.isValidClass(TestClassD.class));
+           Assertions.assertTrue(validator.isValidClass(TestClassD.class));
         }
         catch(NullPointerException e){
             Logger.getGlobal().severe(e.getMessage());
-            Assert.fail();
+            Assertions.fail();
         }
     }
     
     @Test
-    @Parameters(method="parametersValidField")
     public void testValidField(String fieldName){
         try{
             Field field = TestClassD.class.getDeclaredField(fieldName);
-            Assert.assertTrue(validator.isValidField(field));
+            Assertions.assertTrue(validator.isValidField(field));
         }catch(NoSuchFieldException e){
             Logger.getGlobal().severe(e.getMessage());
-            Assert.fail();
+            Assertions.fail();
         }
     }
     
     @Test
-    @Parameters(method="parametersInvalidField")
     public void testInvalidField(String fieldName){
         try{
             Field field = TestClassD.class.getDeclaredField(fieldName);
-            Assert.assertFalse(validator.isValidField(field));
+            Assertions.assertFalse(validator.isValidField(field));
         }catch(NoSuchFieldException e){
             Logger.getGlobal().severe(e.getMessage());
-            Assert.fail();
         }
     }
     
-    @Test(expected=NullPointerException.class)
     public void testIsNonAnnotatedField() throws NullPointerException{
         try{
             Field field = TestClassD.class.getDeclaredField("field8");
-            Assert.assertFalse(validator.isValidField(field));
+            Assertions.assertFalse(validator.isValidField(field));
         }catch(NoSuchFieldException e){
-            Logger.getGlobal().severe(e.getMessage());
-            Assert.fail();
         }
     }
   

@@ -16,27 +16,21 @@ import com.elatusdev.elatusph.annotaciones.MainField;
 @MainField(value="field1")
 public class TestClassD implements Comparable<TestClassD>{
     
-    @Label("field 1")
     @FieldMetadata(show=true)
     private Long field1;
     
-    @Label("field 2")
     @FieldMetadata(show=true)
     private String field2;
     
-    @Label("field 3")
     @FieldMetadata(show=true)
     private Integer field3;
     
-    @Label("field 4")
     @FieldMetadata(show=true)
     private Double field4;
     
-    @Label("field 5")
     @FieldMetadata(show=true)
     private Float field5;
     
-    @Label("field 6")
     @FieldMetadata(show=true)
     private Boolean field6;
     

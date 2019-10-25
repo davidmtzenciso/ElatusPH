@@ -15,21 +15,17 @@ import com.elatusdev.elatusph.transformers.ObjectTransformer;
 import com.elatusdev.elatusph.transformersimpl.ObjectTransformerImpl;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author root
  */
-@RunWith(MockitoJUnitRunner.class)
 public class ObjectTransformerTest {
                 
     private final ObjectTransformer objTransformer = new ObjectTransformerImpl();
@@ -71,7 +67,7 @@ public class ObjectTransformerTest {
         ListPresentation list;
        
        list = objTransformer.toListPresentation(createInstanceB());
-       Assert.assertArrayEquals(
+       Assertions.assertArrayEquals(
                new String[]{"field 1", "field 2", "field 3", "field 4", "field 5",
                             "field 6", "field ClassD2"}, list.getLabels().toArray());    
     }
@@ -83,7 +79,7 @@ public class ObjectTransformerTest {
        
        
        list = objTransformer.toListPresentation(createInstanceD());
-       Assert.assertArrayEquals(
+       Assertions.assertArrayEquals(
                new String[]{"field 1", "field 2", "field 3", "field 4", "field 5",
                             "field 6"}, list.getLabels().toArray());       
     }
@@ -93,7 +89,7 @@ public class ObjectTransformerTest {
        ListPresentation list;
        
        list = objTransformer.toListPresentation(createInstanceD());
-       Assert.assertArrayEquals(
+       Assertions.assertArrayEquals(
                new Object[]{ new Long(1),"aaaaa",1234, 123.1, new Float(1.2),true}, 
                             list.getData().toArray());
     }
@@ -103,7 +99,7 @@ public class ObjectTransformerTest {
         TablePresentation table;
         
         table = objTransformer.toTablePresentation(createList());
-        Assert.assertEquals(2, table.getRows().size());
+        Assertions.assertEquals(2, table.getRows().size());
     }
     
     @Test
@@ -111,7 +107,7 @@ public class ObjectTransformerTest {
         TablePresentation table;
         
         table = objTransformer.toTablePresentation(createList());
-        Assert.assertArrayEquals(
+        Assertions.assertArrayEquals(
                new String[]{"field 1", "field 2", "field 3", "field 4", "field 5",
                             "field 6"}, table.getLabels().toArray());          
     }

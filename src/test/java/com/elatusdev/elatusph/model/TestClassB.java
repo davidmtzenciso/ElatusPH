@@ -16,12 +16,10 @@ import com.elatusdev.elatusph.annotaciones.MainField;
 @MainField(value="fieldClassD")
 public class TestClassB implements Comparable<TestClassB>{
     
-    @Label("field ClassD1")
     @FieldMetadata(show=true, type=FieldMetadata.FieldType.USER_OBJECT,
             fieldClass=TestClassD.class, expand=true)
     private TestClassD fieldClassD1;
     
-    @Label("field ClassD2")
     @FieldMetadata(show=true, type=FieldMetadata.FieldType.USER_OBJECT,
             fieldClass=TestClassD.class)
     private TestClassD fieldClassD2;

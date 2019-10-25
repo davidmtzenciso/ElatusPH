@@ -18,5 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Label {
     
-    String value();
+    String identifier();
+    
+    String directory() default "";
 }

@@ -41,7 +41,7 @@ public class ObjectTransformerImpl implements ObjectTransformer{
                                 getMethodName(field.getName())).invoke(target)));
                     }
                     else
-                        list.add(field.getDeclaredAnnotation(Label.class).value());
+                        list.add(field.getDeclaredAnnotation(Label.class).identifier());
                 }
             }
             return list;

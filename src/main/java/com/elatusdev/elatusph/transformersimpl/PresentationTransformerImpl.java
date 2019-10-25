@@ -57,7 +57,7 @@ public class PresentationTransformerImpl implements PresentationTransfomer {
         for(Field field : cls.getDeclaredFields()){
             labelAnnotation = field.getAnnotation(Label.class);
             if(labelAnnotation != null){
-                if(labelAnnotation.value().equals(label)){
+                if(labelAnnotation.identifier().equals(label)){
                     return field;
                 }
             }
