@@ -1,0 +1,15 @@
+com\elatusdev\elatusph\annotaciones\FieldMetadata.class
+com\elatusdev\elatusph\transformersimpl\Validator.class
+com\elatusdev\elatusph\transformersimpl\ObjectTransformerImpl.class
+com\elatusdev\elatusph\model\BadConstructionException.class
+com\elatusdev\elatusph\transformersimpl\ObjectTransformerImpl$1.class
+com\elatusdev\elatusph\model\TablePresentation.class
+com\elatusdev\elatusph\transformersimpl\ElatusPHImpl.class
+com\elatusdev\elatusph\annotaciones\MainField.class
+com\elatusdev\elatusph\model\ListPresentation.class
+com\elatusdev\elatusph\transformers\PresentationTransfomer.class
+com\elatusdev\elatusph\transformers\ElatusPH.class
+com\elatusdev\elatusph\transformers\ObjectTransformer.class
+com\elatusdev\elatusph\annotaciones\FieldMetadata$FieldType.class
+com\elatusdev\elatusph\annotaciones\Label.class
+com\elatusdev\elatusph\transformersimpl\PresentationTransformerImpl.class
