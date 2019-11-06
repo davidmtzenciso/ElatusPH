@@ -20,9 +20,9 @@ import java.util.function.Function;
  *
  * @author root
  */
-public class ElatusPHImpl implements ElatusPH {
+public class McModelImpl implements ElatusPH {
     
-    public ElatusPHImpl(){
+    public McModelImpl(){
         presentationTransformer = new PresentationTransformerImpl();
         objectTransformer = new ObjectTransformerImpl();
     }
