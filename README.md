@@ -1,5 +1,4 @@
-# ElatusPH
+# MCModel
 
-ElatusPH is a framework to ease the manipulation of data with some annotations we can define the data to show and how to show it and also linked it to labels all in the model layer.
-We can transform the objects into an array or bi-dimensional array to be use in the view layer.
+MCModel is a library to manipulate our model. With some annotations we can map labels to field in a class and it will automatically update any changes to it. 
 
